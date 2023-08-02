@@ -30,7 +30,6 @@ pipeline {
 	stage('Set gcloud Config') {
 	    steps {
 		sh 'curl https://sdk.cloud.google.com | bash'
-		sh 'exec -l $SHELL'
 		sh 'gcloud init --console-only'
 
 		sh 'gcloud config set auth/disable_scopes true'
