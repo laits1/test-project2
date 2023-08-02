@@ -37,7 +37,7 @@ pipeline {
         }
         stage('Create VM') {
             steps {
-                sh 'gcloud compute instances create $VM_NAME --image-family=$IMAGE_FAMILY --image-project=$IMAGE_PROJECT --zone=$ZONE --machine-type=$MACHINE_TYPE --boot-disk-size=$BOOT_DISK_SIZE --tags=$TAGS'
+                sh 'gcloud compute instances create gcloud-vm --machine-type e2-medium'
             }
         }
   }
