@@ -37,7 +37,7 @@ pipeline {
         }
         stage('Create VM') {
             steps {
-                sh 'gcloud compute instances create gcloud-vm --machine-type e2-medium'
+                sh 'gcloud compute instances create gcloud-vm --machine-type e2-medium --zone=asia-northeast3-a'
             }
         }
   }
