@@ -27,6 +27,15 @@ pipeline {
                 sh 'terraform apply -auto-approve'
             }
         }
+	stage('Set gcloud Config') {
+	    steps {
+		// gcloud SDK 설치 및 초기화
+		sh 'curl https://sdk.cloud.google.com | bash'
+		sh 'exec -l $SHELL'
+		sh 'gcloud init --console-only'
+	    }
+	}
+
         stage('Create VM') {
             steps {
                 sh 'gcloud compute instances create gcloud-vm --machine-type e2-medium --zone=asia-northeast3-a'
