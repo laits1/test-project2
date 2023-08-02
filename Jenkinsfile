@@ -35,6 +35,7 @@ pipeline {
 
 		sh 'gcloud config set auth/disable_scopes true'
 		sh 'gcloud config set project test-project2-394700'
+                 }
         }
 
 
