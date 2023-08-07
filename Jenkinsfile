@@ -34,29 +34,29 @@ pipeline {
             }
         }
 
-        stage('Set gcloud Config') {
-            steps {
-                // Check if google-cloud-sdk directory exists and remove it if present
-                script {
-                    def gcloudSdkDir = "${HOME}/google-cloud-sdk"
-                    if (fileExists(gcloudSdkDir)) {
-                        sh "rm -rf ${gcloudSdkDir}"
-                    }
-                }
-
-                // Install and configure gcloud SDK
-                sh 'curl https://sdk.cloud.google.com | bash'
-                sh 'gcloud init --console-only'
-
-                // Set GCP service account credentials
-                withCredentials([file(credentialsId: CREDENTIALS_ID, variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
-                    sh "gcloud auth activate-service-account --key-file=\$GOOGLE_APPLICATION_CREDENTIALS"
-                }
-
-                // Set GCP project ID
-                sh "gcloud config set project ${GCP_PROJECT_ID}"
+stage('Set gcloud Config') {
+    steps {
+        script {
+            // Check if google-cloud-sdk directory exists and remove it if present
+            def gcloudSdkDir = "${HOME}/google-cloud-sdk"
+            if (fileExists(gcloudSdkDir)) {
+                sh "rm -rf ${gcloudSdkDir}"
             }
         }
+
+        // Install and configure gcloud SDK without interactive mode
+        sh 'curl https://sdk.cloud.google.com | bash'
+        sh 'echo "1" | gcloud init --console-only --quiet'
+
+        // Set GCP service account credentials
+        withCredentials([file(credentialsId: CREDENTIALS_ID, variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
+            sh "gcloud auth activate-service-account --key-file=\$GOOGLE_APPLICATION_CREDENTIALS"
+        }
+
+        // Set GCP project ID
+        sh "gcloud config set project ${GCP_PROJECT_ID}"
+    }
+}
 
         stage('Create VM') {
             steps {
