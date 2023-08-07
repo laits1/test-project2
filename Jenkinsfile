@@ -1,41 +1,12 @@
 pipeline {
-  agent any
+    agent any
 
-  environment {
-    GIT_URL = "https://github.com/laits1/test-project2.git"
-    HOME = "/var/lib/jenkins"
-    GCLOUD_PATH = "/var/lib/jenkins/gcs/google-cloud-sdk" // 새로운 설치 경로로 변경하세요.
-    GCLOUD_PROJECT = "test-project2-394700" // 변경할 GCP 프로젝트명으로 변경하세요.
-    // GCP 서비스 계정 인증 정보를 설정합니다.
-    GOOGLE_APPLICATION_CREDENTIALS = credentials('jenkins-sa.json') // Jenkins의 "Secret file" credentials 타입으로 미리 업로드된 GCP 서비스 계정 키 파일
-       
-  }
-
-  stages {
-    stage('Pull') {
-      steps {
-        git(url: "${GIT_URL}", branch: "master", changelog: true, poll: true)
-      }
+    environment {
+        // GCP 서비스 계정 인증 정보를 설정합니다.
+        GOOGLE_APPLICATION_CREDENTIALS = credentials('jenkins-sa.json') // Jenkins의 "Secret file" credentials 타입으로 미리 업로드된 GCP 서비스 계정 키 파일
     }
 
-    stage('Terraform Init') {
-      steps {
-        sh 'terraform init'
-      }
-    }
-
-    stage('Terraform Plan') {
-      steps {
-        sh 'terraform plan'
-      }
-    }
-
-    stage('Terraform Apply') {
-      steps {
-        sh 'terraform apply -auto-approve'
-      }
-    }
-
+    stages {
         stage('Create VM') {
             steps {
                 script {
@@ -62,5 +33,6 @@ pipeline {
                 }
             }
         }
- }
+    }
 }
+
