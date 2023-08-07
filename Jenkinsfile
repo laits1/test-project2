@@ -37,24 +37,24 @@ pipeline {
 stage('Set gcloud Config') {
     steps {
         script {
-            // Check if google-cloud-sdk directory exists and remove it if present
+            // google-cloud-sdk 디렉토리가 존재하면 삭제
             def gcloudSdkDir = "${HOME}/google-cloud-sdk"
             if (fileExists(gcloudSdkDir)) {
                 sh "rm -rf ${gcloudSdkDir}"
             }
         }
 
-        // Install and configure gcloud SDK without interactive mode
+        // gcloud SDK 설치 및 환경 설정
         sh 'curl https://sdk.cloud.google.com | bash'
-        sh 'echo "1" | gcloud init --console-only --quiet'
 
-        // Set GCP service account credentials
+        // GCP 서비스 계정 자격증명 설정
         withCredentials([file(credentialsId: CREDENTIALS_ID, variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
             sh "gcloud auth activate-service-account --key-file=\$GOOGLE_APPLICATION_CREDENTIALS"
         }
 
-        // Set GCP project ID
-        sh "gcloud config set project ${GCP_PROJECT_ID}"
+        // GCP 프로젝트 ID 설정 및 프롬프트 비활성화
+        sh "gcloud config set project ${GCP_PROJECT_ID} --quiet"
+        sh "gcloud config set disable_prompts true --quiet"
     }
 }
 
