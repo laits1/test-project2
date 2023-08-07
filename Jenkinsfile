@@ -4,7 +4,7 @@ pipeline {
     environment {
         GIT_URL = "https://github.com/laits1/test-project2.git"
         HOME = "${WORKSPACE}" // Use the Jenkins workspace as the home directory
-        CREDENTIALS_ID = "jenkins-sa.json" // Jenkins Credential Plugin에 등록한 GCP 서비스 계정 키 파일의 credentialsId
+        CREDENTIALS_ID = "/home/thsehdrl94/test/jenkins-sa.json" // Jenkins Credential Plugin에 등록한 GCP 서비스 계정 키 파일의 credentialsId
         GCP_PROJECT_ID = "test-project2-394700" // GCP 프로젝트 ID
         GCP_ZONE = "asia-northeast3-a" // GCP 인스턴스를 생성할 지역/존 (예: 'us-central1-a', 'asia-northeast3-a' 등)
     }
