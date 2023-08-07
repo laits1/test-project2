@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         GIT_URL = "https://github.com/laits1/test-project2.git"
-        HOME = "/var/lib/jenkins"
+        HOME = "${WORKSPACE}" // Use the Jenkins workspace as the home directory
         CREDENTIALS_ID = "jenkins-sa.json" // Jenkins Credential Plugin에 등록한 GCP 서비스 계정 키 파일의 credentialsId
         GCP_PROJECT_ID = "test-project2-394700" // GCP 프로젝트 ID
         GCP_ZONE = "asia-northeast3-a" // GCP 인스턴스를 생성할 지역/존 (예: 'us-central1-a', 'asia-northeast3-a' 등)
@@ -36,7 +36,15 @@ pipeline {
 
         stage('Set gcloud Config') {
             steps {
-                // Install and configure gcloud SDK (if not already installed)
+                // Check if google-cloud-sdk directory exists and remove it if present
+                script {
+                    def gcloudSdkDir = "${HOME}/google-cloud-sdk"
+                    if (fileExists(gcloudSdkDir)) {
+                        sh "rm -rf ${gcloudSdkDir}"
+                    }
+                }
+
+                // Install and configure gcloud SDK
                 sh 'curl https://sdk.cloud.google.com | bash'
                 sh 'gcloud init --console-only'
 
@@ -57,5 +65,4 @@ pipeline {
         }
     }
 }
-
 
