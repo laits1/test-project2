@@ -7,24 +7,13 @@ pipeline {
         CREDENTIALS_ID = "jenkins-sa.json" // Jenkins Credential Plugin에 등록한 GCP 서비스 계정 키 파일의 credentialsId
         GCP_PROJECT_ID = "test-project2-394700" // GCP 프로젝트 ID
         GCP_ZONE = "asia-northeast3-a" // GCP 인스턴스를 생성할 지역/존 (예: 'us-central1-a', 'asia-northeast3-a' 등)
+        GCLOUD_PATH = "/usr/bin/gcloud" // Replace this with the actual path
     }
 
     stages {
         stage('Pull') {
             steps {
                 git(url: "${GIT_URL}", branch: "master", changelog: true, poll: true)
-            }
-        }
-
-        stage('Setup GCP Configuration') {
-            steps {
-                withCredentials([file(credentialsId: CREDENTIALS_ID, variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
-                    sh """
-                    curl https://sdk.cloud.google.com | bash
-                    gcloud auth activate-service-account --key-file=\$GOOGLE_APPLICATION_CREDENTIALS
-                    gcloud config set project ${GCP_PROJECT_ID}
-                    """
-                }
             }
         }
 
@@ -46,9 +35,21 @@ pipeline {
             }
         }
 
+        stage('Set gcloud Config') {
+            steps {
+                // Set GCP service account credentials
+                withCredentials([file(credentialsId: CREDENTIALS_ID, variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
+                    sh "${GCLOUD_PATH} auth activate-service-account --key-file=\$GOOGLE_APPLICATION_CREDENTIALS"
+                }
+
+                // Set GCP project ID
+                sh "${GCLOUD_PATH} config set project ${GCP_PROJECT_ID}"
+            }
+        }
+
         stage('Create VM') {
             steps {
-                sh "gcloud compute instances create gcloud-vm --machine-type=e2-medium --zone=${GCP_ZONE}"
+                sh "${GCLOUD_PATH} compute instances create gcloud-vm --machine-type=e2-medium --zone=${GCP_ZONE}"
             }
         }
     }
