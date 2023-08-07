@@ -36,7 +36,6 @@ pipeline {
       }
     }
 
-    stages {
         stage('Create VM') {
             steps {
                 script {
@@ -63,6 +62,4 @@ pipeline {
                 }
             }
         }
-    }
-  }
 }
