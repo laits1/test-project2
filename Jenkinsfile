@@ -2,37 +2,60 @@ pipeline {
     agent any
 
     environment {
-        // GCP 서비스 계정 인증 정보를 설정합니다.
-        GOOGLE_APPLICATION_CREDENTIALS = credentials('jenkins-sa.json') // Jenkins의 "Secret file" credentials 타입으로 미리 업로드된 GCP 서비스 계정 키 파일
+        GIT_URL = "https://github.com/laits1/test-project2.git"
+        HOME = "/var/lib/jenkins"
+        CREDENTIALS_ID = "jenkins-sa.json" // Jenkins Credential Plugin에 등록한 GCP 서비스 계정 키 파일의 credentialsId
+        GCP_PROJECT_ID = "test-project2-394700" // GCP 프로젝트 ID
+        GCP_ZONE = "asia-northeast3-a" // GCP 인스턴스를 생성할 지역/존 (예: 'us-central1-a', 'asia-northeast3-a' 등)
     }
 
     stages {
+        stage('Pull') {
+            steps {
+                git(url: "${GIT_URL}", branch: "master", changelog: true, poll: true)
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                sh 'terraform init'
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                sh 'terraform plan'
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                sh 'terraform apply -auto-approve'
+            }
+        }
+
+        stage('Set gcloud Config') {
+            steps {
+                // Install and configure gcloud SDK (if not already installed)
+                sh 'curl https://sdk.cloud.google.com | bash'
+                sh 'gcloud init --console-only'
+
+                // Set GCP service account credentials
+                withCredentials([file(credentialsId: CREDENTIALS_ID, variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
+                    sh "gcloud auth activate-service-account --key-file=\$GOOGLE_APPLICATION_CREDENTIALS"
+                }
+
+                // Set GCP project ID
+                sh "gcloud config set project ${GCP_PROJECT_ID}"
+            }
+        }
+
         stage('Create VM') {
             steps {
-                script {
-                    // GCP 인증 정보 설정
-                    withCredentials([file(credentialsId: 'gcp-service-account-key', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
-                        // GCP 프로젝트 ID
-                        def projectId = 'test-project2-394700'
-                        // GCP 지역 (예: 'us-central1', 'europe-west1' 등)
-                        def region = 'asia-northeast3'
-                        // GCP 인스턴스 이름
-                        def instanceName = 'gcloud-vm'
-                        // GCP 인스턴스 타입 (예: 'n1-standard-1', 'f1-micro' 등)
-                        def instanceType = 'e2-medium'
-
-                        // gcloud 명령어를 사용하여 VM 인스턴스 생성
-                        sh """
-                            gcloud auth activate-service-account --key-file=\$GOOGLE_APPLICATION_CREDENTIALS
-                            gcloud config set project ${projectId}
-                            gcloud compute instances create ${instanceName} \
-                                --zone=${region} \
-                                --machine-type=${instanceType} \
-                        """
-                    }
-                }
+                sh "gcloud compute instances create gcloud-vm --machine-type=e2-medium --zone=${GCP_ZONE}"
             }
         }
     }
 }
+
 
