@@ -47,6 +47,9 @@ stage('Set gcloud Config') {
         // gcloud SDK 설치 및 환경 설정
         sh 'curl https://sdk.cloud.google.com | bash'
 
+        // 사용자 정보 수집 동의 설정
+        sh "gcloud config set disable_usage_reporting false"
+
         // GCP 서비스 계정 자격증명 설정
         withCredentials([file(credentialsId: CREDENTIALS_ID, variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
             sh "gcloud auth activate-service-account --key-file=\$GOOGLE_APPLICATION_CREDENTIALS"
@@ -57,6 +60,8 @@ stage('Set gcloud Config') {
         sh "gcloud config set disable_prompts true --quiet"
     }
 }
+
+
 
         stage('Create VM') {
             steps {
