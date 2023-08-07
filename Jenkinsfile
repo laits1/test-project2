@@ -36,6 +36,7 @@ pipeline {
     stage('Set gcloud Config') {
       steps {
         script {
+	  sh 'sudo rm -rf /var/lib/jenkins/google-cloud-sdk"
           sh 'curl https://sdk.cloud.google.com | bash'
           sh 'export PATH=$PATH:$GCLOUD_PATH/bin' // Google Cloud SDK가 설치된 디렉토리를 PATH에 추가합니다.
           sh 'gcloud config set pass_credentials_to_gsutil false'
