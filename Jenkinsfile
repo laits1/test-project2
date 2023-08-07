@@ -41,6 +41,7 @@ pipeline {
           sh 'export PATH=$PATH:$GCLOUD_PATH/bin' // Google Cloud SDK가 설치된 디렉토리를 PATH에 추가합니다.
           sh 'gcloud config set pass_credentials_to_gsutil false'
           sh 'gcloud init --console-only'
+	  sh 'gcloud config configurations activate defalut'
           sh 'gcloud config set auth/disable_scopes true'
           sh "gcloud config set project ${GCLOUD_PROJECT}" // 변경된 GCP 프로젝트명을 설정합니다.
         }
