@@ -31,17 +31,12 @@ pipeline {
         }
 
         stage('Terraform Apply') {
-            steps {
-                script {
-                    def userInput = input(id: 'confirm', message: 'Apply terraform plan?', parameters: [ [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'Apply terraform changes', name: 'confirm'] ])
-                    if(userInput == true) {
-                        withCredentials([file(credentialsId: CREDENTIALS_ID, variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
-                            sh 'terraform apply -auto-approve'
-                        }
-                    }
-                }
-            }
+    steps {
+        withCredentials([file(credentialsId: CREDENTIALS_ID, variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
+            sh 'terraform apply -auto-approve'
         }
+    }
+}
 
         stage('Set gcloud Config') {
             steps {
